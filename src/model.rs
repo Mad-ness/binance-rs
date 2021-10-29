@@ -223,8 +223,8 @@ pub struct Bids {
 
 impl Bids {
     pub fn new(price: f64, qty: f64) -> Bids {
-        Bids { 
-            price, 
+        Bids {
+            price,
             qty,
         }
     }
@@ -889,7 +889,7 @@ pub struct Kline {
 
     #[serde(rename = "T")]
     pub end_time: i64,
-    
+
     #[serde(rename = "s")]
     pub symbol: String,
 
@@ -903,19 +903,24 @@ pub struct Kline {
     pub last_trade_id: i32,
 
     #[serde(rename = "o")]
-    pub open: String,
+    #[serde(with = "string_or_float")]
+    pub open: f64,
 
     #[serde(rename = "c")]
-    pub close: String,
+    #[serde(with = "string_or_float")]
+    pub close: f64,
 
     #[serde(rename = "h")]
-    pub high: String,
+    #[serde(with = "string_or_float")]
+    pub high: f64,
 
     #[serde(rename = "l")]
-    pub low: String,
+    #[serde(with = "string_or_float")]
+    pub low: f64,
 
     #[serde(rename = "v")]
-    pub volume: String,
+    #[serde(with = "string_or_float")]
+    pub volume: f64,
 
     #[serde(rename = "n")]
     pub number_of_trades: i32,
