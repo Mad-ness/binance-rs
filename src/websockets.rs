@@ -16,6 +16,7 @@ enum WebsocketAPI {
     Default,
     MultiStream,
     Custom(String),
+    TestMultiStream,
 }
 
 impl WebsocketAPI {
@@ -25,6 +26,7 @@ impl WebsocketAPI {
             WebsocketAPI::Default => format!("wss://stream.binance.com:9443/ws/{}", subscription),
             WebsocketAPI::MultiStream => format!("wss://stream.binance.com:9443/stream?streams={}", subscription),
             WebsocketAPI::Custom(url) => format!("{}/{}", url, subscription),
+            WebsocketAPI::TestMultiStream => format!("ws://localhost:9033/stream?streams={}", subscription),
         }
     }
 
@@ -88,7 +90,11 @@ impl<'a> WebSockets<'a> {
     pub fn connect_multiple_streams(&mut self, endpoints: &[String]) -> Result<()> {
         self.connect_wss(WebsocketAPI::MultiStream.params(&endpoints.join("/")))
     }
-    
+
+    pub fn connect_test_multiple_streams(&mut self, endpoints: &[String]) -> Result<()> {
+        self.connect_wss(WebsocketAPI::TestMultiStream.params(&endpoints.join("/")))
+    }
+
     fn connect_wss(&mut self, wss: String) -> Result<()> {
         let url = Url::parse(&wss)?;
         match connect(url) {
@@ -107,7 +113,7 @@ impl<'a> WebSockets<'a> {
         }
         bail!("Not able to close the connection");
     }
-    
+
     pub fn test_handle_msg(&mut self, msg: &str) -> Result<()> {
         self.handle_msg(msg)
     }
