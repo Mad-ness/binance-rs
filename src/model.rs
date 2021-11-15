@@ -116,8 +116,10 @@ pub struct AccountInformation {
 #[serde(rename_all = "camelCase")]
 pub struct Balance {
     pub asset: String,
-    pub free: String,
-    pub locked: String,
+    #[serde(with = "string_or_float")]
+    pub free: f64,
+    #[serde(with = "string_or_float")]
+    pub locked: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
