@@ -873,15 +873,15 @@ pub struct IndexKlineEvent {
 pub struct KlineSummary {
     pub open_time: i64,
 
-    pub open: f64,
+    pub open: String,
 
-    pub high: f64,
+    pub high: String,
 
-    pub low: f64,
+    pub low: String,
 
-    pub close: f64,
+    pub close: String,
 
-    pub volume: f64,
+    pub volume: String,
 
     pub close_time: i64,
 
