@@ -20,22 +20,24 @@ enum WebsocketAPI {
 }
 
 impl WebsocketAPI {
-
     fn params(self, subscription: &str) -> String {
         match self {
             WebsocketAPI::Default => format!("wss://stream.binance.com:9443/ws/{}", subscription),
-            WebsocketAPI::MultiStream => format!("wss://stream.binance.com:9443/stream?streams={}", subscription),
+            WebsocketAPI::MultiStream => format!(
+                "wss://stream.binance.com:9443/stream?streams={}",
+                subscription
+            ),
             WebsocketAPI::Custom(url) => format!("{}/{}", url, subscription),
             WebsocketAPI::FakeMultiStream => format!("ws://localhost:9033/stream?streams={}", subscription),
         }
     }
-
 }
 
 #[allow(clippy::large_enum_variant)]
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum WebsocketEvent {
     AccountUpdate(AccountUpdateEvent),
+    BalanceUpdate(BalanceUpdateEvent),
     OrderTrade(OrderTradeEvent),
     AggrTrades(AggrTradesEvent),
     Trade(TradeEvent),
@@ -56,6 +58,7 @@ pub struct WebSockets<'a> {
 #[serde(untagged)]
 enum Events {
     Vec(Vec<DayTickerEvent>),
+    BalanceUpdateEvent(BalanceUpdateEvent),
     DayTickerEvent(DayTickerEvent),
     BookTickerEvent(BookTickerEvent),
     AccountUpdateEvent(AccountUpdateEvent),
@@ -68,7 +71,6 @@ enum Events {
 }
 
 impl<'a> WebSockets<'a> {
-
     pub fn new<Callback>(handler: Callback) -> WebSockets<'a>
     where
         Callback: FnMut(WebsocketEvent) -> Result<()> + 'a,
@@ -102,7 +104,7 @@ impl<'a> WebSockets<'a> {
                 self.socket = Some(answer);
                 Ok(())
             }
-            Err(e) => bail!(format!("Error during handshake {}", e))
+            Err(e) => bail!(format!("Error during handshake {}", e)),
         }
     }
 
@@ -119,7 +121,6 @@ impl<'a> WebSockets<'a> {
     }
 
     fn handle_msg(&mut self, msg: &str) -> Result<()> {
-
         let value: serde_json::Value = serde_json::from_str(msg)?;
 
         if let Some(data) = value.get("data") {
@@ -131,6 +132,7 @@ impl<'a> WebSockets<'a> {
             let action = match events {
                 Events::Vec(v) => WebsocketEvent::DayTickerAll(v),
                 Events::BookTickerEvent(v) => WebsocketEvent::BookTicker(v),
+                Events::BalanceUpdateEvent(v) => WebsocketEvent::BalanceUpdate(v),
                 Events::AccountUpdateEvent(v) => WebsocketEvent::AccountUpdate(v),
                 Events::OrderTradeEvent(v) => WebsocketEvent::OrderTrade(v),
                 Events::AggrTradesEvent(v) => WebsocketEvent::AggrTrades(v),
@@ -156,11 +158,10 @@ impl<'a> WebSockets<'a> {
                         }
                     }
                     Message::Ping(_) | Message::Pong(_) | Message::Binary(_) => (),
-                    Message::Close(e) => bail!(format!("Disconnected {:?}", e))
+                    Message::Close(e) => bail!(format!("Disconnected {:?}", e)),
                 }
             }
         }
         Ok(())
     }
-
 }

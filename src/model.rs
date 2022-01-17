@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
+use serde_json::{from_value, Value};
+use std::convert::TryFrom;
+use crate::errors::*;
 
 #[derive(Deserialize, Clone)]
-pub struct Empty { }
+pub struct Empty {}
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -225,10 +228,7 @@ pub struct Bids {
 
 impl Bids {
     pub fn new(price: f64, qty: f64) -> Bids {
-        Bids {
-            price,
-            qty,
-        }
+        Bids { price, qty }
     }
 }
 
@@ -389,13 +389,29 @@ pub struct AccountUpdateEvent {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct BalanceUpdateEvent {
+    #[serde(rename = "B")]
+    pub balance: Vec<EventBalance>,
+
+    #[serde(rename = "e")]
+    pub event_type: String,
+
+    #[serde(rename = "E")]
+    pub event_time: u64,
+
+    #[serde(rename = "u")]
+    pub last_account_update_time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct EventBalance {
-    #[serde(rename = "a")]
-    pub asset: String,
-    #[serde(rename = "f")]
-    pub free: String,
-    #[serde(rename = "l")]
-    pub locked: String,
+    #[serde(rename = "a", with = "string_or_float")]
+    pub asset: f64,
+    #[serde(rename = "f", with = "string_or_float")]
+    pub free: f64,
+    #[serde(rename = "l", with = "string_or_float")]
+    pub locked: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -588,7 +604,6 @@ pub struct IndexPriceEvent {
 
     #[serde(rename = "p")]
     pub price: String,
-
 }
 // https://binance-docs.github.io/apidocs/futures/en/#mark-price-stream
 // https://binance-docs.github.io/apidocs/delivery/en/#mark-price-stream
@@ -620,7 +635,6 @@ pub struct MarkPriceEvent {
     pub symbol: String,
 }
 
-
 // Object({"E": Number(1626118018407), "e": String("forceOrder"), "o": Object({"S": String("SELL"), "T": Number(1626118018404), "X": String("FILLED"), "ap": String("33028.07"), "f": String("IOC"), "l": String("0.010"), "o": String("LIMIT"), "p": String("32896.00"), "q": String("0.010"), "s": String("BTCUSDT"), "z": String("0.010")})})
 // https://binance-docs.github.io/apidocs/futures/en/#liquidation-order-streams
 
@@ -635,7 +649,6 @@ pub struct LiquidationEvent {
 
     #[serde(rename = "o")]
     pub liquidation_order: LiquidationOrder,
-
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -801,7 +814,6 @@ pub struct MiniTickerEvent {
     pub quote_volume: String,
 }
 
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct KlineEvent {
@@ -839,7 +851,6 @@ pub struct ContinuousKlineEvent {
     pub kline: ContinuousKline,
 }
 
-
 // https://binance-docs.github.io/apidocs/delivery/en/#index-kline-candlestick-streams
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -874,23 +885,58 @@ pub struct KlineSummary {
 
     pub close_time: i64,
 
-    pub quote_asset_volume: f64,
+    pub quote_asset_volume: String,
 
     pub number_of_trades: i64,
 
-    pub taker_buy_base_asset_volume: f64,
+    pub taker_buy_base_asset_volume: String,
 
-    pub taker_buy_quote_asset_volume: f64,
+    pub taker_buy_quote_asset_volume: String,
+}
+
+fn get_value(row: &[Value], index: usize, name: &'static str) -> Result<Value> {
+    Ok(row
+        .get(index)
+        .ok_or(ErrorKind::KlineValueMissingError(index, name))?
+        .to_owned())
+}
+
+impl TryFrom<&Vec<Value>> for KlineSummary {
+    type Error = Error;
+
+    fn try_from(row: &Vec<Value>) -> Result<Self> {
+        Ok(Self {
+            open_time: from_value(get_value(row, 0, "open_time")?)?,
+            open: from_value(get_value(row, 1, "open")?)?,
+            high: from_value(get_value(row, 2, "high")?)?,
+            low: from_value(get_value(row, 3, "low")?)?,
+            close: from_value(get_value(row, 4, "close")?)?,
+            volume: from_value(get_value(row, 5, "volume")?)?,
+            close_time: from_value(get_value(row, 6, "close_time")?)?,
+            quote_asset_volume: from_value(get_value(row, 7, "quote_asset_volume")?)?,
+            number_of_trades: from_value(get_value(row, 8, "number_of_trades")?)?,
+            taker_buy_base_asset_volume: from_value(get_value(
+                row,
+                9,
+                "taker_buy_base_asset_volume",
+            )?)?,
+            taker_buy_quote_asset_volume: from_value(get_value(
+                row,
+                10,
+                "taker_buy_quote_asset_volume",
+            )?)?,
+        })
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Kline {
     #[serde(rename = "t")]
-    pub start_time: i64,
+    pub open_time: i64,
 
     #[serde(rename = "T")]
-    pub end_time: i64,
+    pub close_time: i64,
 
     #[serde(rename = "s")]
     pub symbol: String,
@@ -899,45 +945,40 @@ pub struct Kline {
     pub interval: String,
 
     #[serde(rename = "f")]
-    pub first_trade_id: i32,
+    pub first_trade_id: i64,
 
     #[serde(rename = "L")]
-    pub last_trade_id: i32,
+    pub last_trade_id: i64,
 
-    #[serde(rename = "o")]
-    #[serde(with = "string_or_float")]
+    #[serde(rename = "o", with = "string_or_float")]
     pub open: f64,
 
-    #[serde(rename = "c")]
-    #[serde(with = "string_or_float")]
+    #[serde(rename = "c", with = "string_or_float")]
     pub close: f64,
 
-    #[serde(rename = "h")]
-    #[serde(with = "string_or_float")]
+    #[serde(rename = "h", with = "string_or_float")]
     pub high: f64,
 
-    #[serde(rename = "l")]
-    #[serde(with = "string_or_float")]
+    #[serde(rename = "l", with = "string_or_float")]
     pub low: f64,
 
-    #[serde(rename = "v")]
-    #[serde(with = "string_or_float")]
+    #[serde(rename = "v", with = "string_or_float")]
     pub volume: f64,
 
     #[serde(rename = "n")]
-    pub number_of_trades: i32,
+    pub number_of_trades: i64,
 
     #[serde(rename = "x")]
     pub is_final_bar: bool,
 
     #[serde(rename = "q")]
-    pub quote_volume: String,
+    pub quote_asset_volume: String,
 
     #[serde(rename = "V")]
-    pub active_buy_volume: String,
+    pub taker_buy_base_asset_volume: String,
 
     #[serde(rename = "Q")]
-    pub active_volume_buy_quote: String,
+    pub taker_buy_quote_asset_volume: String,
 
     #[serde(skip, rename = "B")]
     pub ignore_me: String,
@@ -1192,7 +1233,7 @@ pub(crate) mod string_or_float {
                 } else {
                     s.parse().map_err(de::Error::custom)
                 }
-            },
+            }
             StringOrFloat::Float(i) => Ok(i),
         }
     }
@@ -1210,7 +1251,7 @@ pub(crate) mod string_or_float_opt {
     {
         match value {
             Some(v) => crate::model::string_or_float::serialize(v, serializer),
-            None => serializer.serialize_none()
+            None => serializer.serialize_none(),
         }
     }
 
@@ -1225,7 +1266,9 @@ pub(crate) mod string_or_float_opt {
             Float(f64),
         }
 
-        Ok(Some(crate::model::string_or_float::deserialize(deserializer)?))
+        Ok(Some(crate::model::string_or_float::deserialize(
+            deserializer,
+        )?))
     }
 }
 
@@ -1235,16 +1278,16 @@ pub(crate) mod string_or_bool {
     use serde::{de, Serializer, Deserialize, Deserializer};
 
     pub fn serialize<T, S>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            T: fmt::Display,
-            S: Serializer,
+    where
+        T: fmt::Display,
+        S: Serializer,
     {
         serializer.collect_str(value)
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<bool, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         #[derive(Deserialize)]
         #[serde(untagged)]
