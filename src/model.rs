@@ -406,11 +406,11 @@ pub struct BalanceUpdateEvent {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EventBalance {
-    #[serde(rename = "a", with = "string_or_float")]
+    #[serde(rename = "a")]
     pub asset: String,
-    #[serde(rename = "f", with = "string_or_float")]
+    #[serde(rename = "f")]
     pub free: String,
-    #[serde(rename = "l", with = "string_or_float")]
+    #[serde(rename = "l")]
     pub locked: String,
 }
 
