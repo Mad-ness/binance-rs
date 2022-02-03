@@ -299,7 +299,9 @@ pub struct Tickers {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TradeHistory {
+    pub symbol: String,
     pub id: u64,
+    pub order_id: u64,
     #[serde(with = "string_or_float")]
     pub price: f64,
     #[serde(with = "string_or_float")]
