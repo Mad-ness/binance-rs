@@ -33,6 +33,7 @@ struct OrderQuoteQuantityRequest {
     pub new_client_order_id: Option<String>,
 }
 
+#[derive(Debug, Clone)]
 pub enum OrderType {
     Limit,
     Market,
@@ -63,6 +64,7 @@ impl Into<OrderType> for String {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum OrderSide {
     Buy,
     Sell,
@@ -87,6 +89,7 @@ impl Into<OrderSide> for String {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum OrderStatus {
     New,
     PartiallyFilled,
