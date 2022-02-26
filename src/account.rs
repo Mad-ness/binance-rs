@@ -37,6 +37,7 @@ pub enum OrderType {
     Limit,
     Market,
     StopLossLimit,
+    TakeProfitLimit,
 }
 
 impl From<OrderType> for String {
@@ -45,6 +46,19 @@ impl From<OrderType> for String {
             OrderType::Limit => String::from("LIMIT"),
             OrderType::Market => String::from("MARKET"),
             OrderType::StopLossLimit => String::from("STOP_LOSS_LIMIT"),
+            OrderType::TakeProfitLimit => String::from("TAKE_PROFIT_LIMIT"),
+        }
+    }
+}
+
+impl Into<OrderType> for String {
+    fn into(self) -> OrderType {
+        match self.as_str() {
+            "LIMIT" => OrderType::Limit,
+            "MARKET" => OrderType::Market,
+            "STOP_LOSS_LIMIT" => OrderType::StopLossLimit,
+            "TAKE_PROFIT_LIMIT" => OrderType::TakeProfitLimit,
+            _ => panic!("Undefined Order type {}", self),
         }
     }
 }
@@ -59,6 +73,54 @@ impl From<OrderSide> for String {
         match item {
             OrderSide::Buy => String::from("BUY"),
             OrderSide::Sell => String::from("SELL"),
+        }
+    }
+}
+
+impl Into<OrderSide> for String {
+    fn into(self) -> OrderSide {
+        match self.as_str() {
+            "BUY" => OrderSide::Buy,
+            "SELL" => OrderSide::Sell,
+            _ => panic!("Undefined Order side {}", self),
+        }
+    }
+}
+
+pub enum OrderStatus {
+    New,
+    PartiallyFilled,
+    Filled,
+    Canceled,
+    PendingCancel,
+    Rejected,
+    Expired,
+}
+
+impl From<OrderStatus> for String {
+    fn from(item: OrderStatus) -> Self {
+        match item {
+            OrderStatus::New => String::from("NEW"),
+            OrderStatus::PartiallyFilled => String::from("PARTIALLY_FILLED"),
+            OrderStatus::Filled => String::from("FILLED"),
+            OrderStatus::Canceled => String::from("CANCELED"),
+            OrderStatus::PendingCancel => String::from("PENDING_CANCEL"),
+            OrderStatus::Rejected => String::from("REJECTED"),
+            OrderStatus::Expired => String::from("EXPIRED"),
+        }
+    }
+}
+
+impl Into<OrderStatus> for String {
+    fn into(self) -> OrderStatus {
+        match self.as_str() {
+            "NEW" => OrderStatus::New,
+            "PARTIALLY_FILLED" => OrderStatus::PartiallyFilled,
+            "FILLED" => OrderStatus::Filled,
+            "CANCELED" => OrderStatus::Canceled,
+            "REJECTED" => OrderStatus::Rejected,
+            "EXPIRED" => OrderStatus::Expired,
+            _ => panic!("Undefined Order status {}", self),
         }
     }
 }
