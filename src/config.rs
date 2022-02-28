@@ -1,6 +1,7 @@
 #[derive(Clone, Debug, PartialEq)]
 pub struct Config {
     pub rest_api_endpoint: String,
+    pub fake_restapi_endpoint: String,
     pub ws_endpoint: String,
 
     pub futures_rest_api_endpoint: String,
@@ -13,6 +14,7 @@ impl Config {
     pub fn default() -> Config {
         Config {
             rest_api_endpoint: "https://api.binance.com".into(),
+            fake_restapi_endpoint: "http://localhost:8443".into(),
             ws_endpoint: "wss://stream.binance.com:9443/ws/".into(),
 
             futures_rest_api_endpoint: "https://fapi.binance.com".into(),
@@ -32,6 +34,11 @@ impl Config {
 
     pub fn set_rest_api_endpoint<T: Into<String>>(mut self, rest_api_endpoint: T) -> Self {
         self.rest_api_endpoint = rest_api_endpoint.into();
+        self
+    }
+
+    pub fn set_fake_restapi_endpoint<T: Into<String>>(mut self, fake_restapi_endpoint: T) -> Self {
+        self.rest_api_endpoint = fake_restapi_endpoint.into();
         self
     }
 

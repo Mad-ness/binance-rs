@@ -7,7 +7,7 @@ use crate::api::API;
 use crate::api::Spot;
 
 #[derive(Clone)]
-pub struct Account {
+pub struct FakeAccount {
     pub client: Client,
     pub recv_window: u64,
 }
@@ -145,7 +145,7 @@ impl From<TimeInForce> for String {
     }
 }
 
-impl Account {
+impl FakeAccount {
     // Account Information
     pub fn get_account(&self) -> Result<AccountInformation> {
         let request = build_signed_request(BTreeMap::new(), self.recv_window)?;

@@ -17,6 +17,7 @@ pub mod util;
 pub mod model;
 
 pub mod account;
+pub mod fakeaccount;
 pub mod api;
 pub mod config;
 pub mod general;
