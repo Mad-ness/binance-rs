@@ -33,7 +33,7 @@ impl Config {
     pub fn fakenet() -> Config {
         Config::default()
             .set_rest_api_endpoint("http://localhost:9443")
-            .set_ws_endpoint("wss://testnet.binance.vision/ws")
+            .set_ws_endpoint("ws://localhost:9444/ws")
             .set_futures_rest_api_endpoint("https://testnet.binancefuture.com")
             .set_futures_ws_endpoint("https://testnet.binancefuture.com/ws")
     }
