@@ -1,5 +1,4 @@
 use crate::account::*;
-use crate::fakeaccount::*;
 use crate::client::*;
 use crate::config::*;
 use crate::futures::account::FuturesAccount;
@@ -180,21 +179,6 @@ impl Binance for General {
     ) -> General {
         General {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
-        }
-    }
-}
-
-impl Binance for FakeAccount {
-    fn new(api_key: Option<String>, secret_key: Option<String>) -> FakeAccount {
-        Self::new_with_config(api_key, secret_key, &Config::default())
-    }
-
-    fn new_with_config(
-        api_key: Option<String>, secret_key: Option<String>, config: &Config,
-    ) -> FakeAccount {
-        FakeAccount {
-            client: Client::new(api_key, secret_key, config.fake_restapi_endpoint.clone()),
-            recv_window: config.recv_window,
         }
     }
 }
