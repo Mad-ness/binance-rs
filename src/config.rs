@@ -34,8 +34,6 @@ impl Config {
         Config::default()
             .set_rest_api_endpoint("http://localhost:9443")
             .set_ws_endpoint("ws://localhost:9444/ws")
-            .set_futures_rest_api_endpoint("https://testnet.binancefuture.com")
-            .set_futures_ws_endpoint("https://testnet.binancefuture.com/ws")
     }
 
     pub fn set_rest_api_endpoint<T: Into<String>>(mut self, rest_api_endpoint: T) -> Self {
