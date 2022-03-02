@@ -5,6 +5,7 @@ use crate::errors::*;
 use std::collections::BTreeMap;
 use crate::api::API;
 use crate::api::Spot;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone)]
 pub struct Account {
@@ -33,7 +34,7 @@ struct OrderQuoteQuantityRequest {
     pub new_client_order_id: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum OrderType {
     Limit,
     Market,
@@ -64,7 +65,7 @@ impl Into<OrderType> for String {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum OrderSide {
     Buy,
     Sell,
@@ -89,7 +90,7 @@ impl Into<OrderSide> for String {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum OrderStatus {
     New,
     PartiallyFilled,
