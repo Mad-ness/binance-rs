@@ -494,8 +494,8 @@ pub struct OrderTradeEvent {
     #[serde(skip, rename = "I")]
     pub i_ignore: u64,
 
-    #[serde(skip)]
-    pub w: bool,
+    #[serde(rename = "w")]
+    pub is_order_on_book: bool,
 
     #[serde(rename = "m")]
     pub is_buyer_maker: bool,
