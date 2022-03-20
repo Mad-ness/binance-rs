@@ -65,6 +65,44 @@ impl Into<OrderType> for String {
     }
 }
 
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum ExecutionType {
+    New,
+    Canceled,
+    Replaced,
+    Rejected,
+    Trade,
+    Expired,
+}
+
+impl From<ExecutionType> for String {
+    fn from(item: ExecutionType) -> Self {
+        match item {
+            ExecutionType::New => String::from("NEW"),
+            ExecutionType::Canceled => String::from("CANCELED"),
+            ExecutionType::Replaced => String::from("REPLACED"),
+            ExecutionType::Rejected => String::from("REJECTED"),
+            ExecutionType::Trade => String::from("TRADE"),
+            ExecutionType::Expired => String::from("EXPIRED"),
+        }
+    }
+}
+
+impl Into<ExecutionType> for String {
+    fn into(self) -> ExecutionType {
+        match self.as_str() {
+            "NEW" => ExecutionType::New,
+            "CANCELED" => ExecutionType::Canceled,
+            "REPLACED" => ExecutionType::Replaced,
+            "REJECTED" => ExecutionType::Rejected,
+            "TRADE" => ExecutionType::Trade,
+            "EXPIRED" => ExecutionType::Expired,
+            _ => panic!("Undefined execution type {}", self),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum OrderSide {
     Buy,
