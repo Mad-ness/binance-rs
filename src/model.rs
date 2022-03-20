@@ -446,7 +446,7 @@ pub struct OrderTradeEvent {
     #[serde(rename = "p")]
     pub price: String,
 
-    #[serde(skip, rename = "P")]
+    #[serde(rename = "P")]
     pub stop_price: String,
 
     #[serde(skip, rename = "F")]
