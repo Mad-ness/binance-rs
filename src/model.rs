@@ -474,7 +474,10 @@ pub struct OrderTradeEvent {
     pub qty_last_filled_trade: String,
 
     #[serde(rename = "z")]
-    pub accumulated_qty_filled_trades: String,
+    pub accumulated_filled_qty: String,
+
+    #[serde(rename = "Z")]
+    pub accumulated_quote_asset_qty: String,
 
     #[serde(rename = "L")]
     pub price_last_filled_trade: String,
