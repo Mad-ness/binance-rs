@@ -416,6 +416,11 @@ pub struct EventBalance {
     pub locked: String,
 }
 
+/// Order update is pushed every time an action on a user order made.
+///
+/// Average price can be found by doing `Z` divided by `z`
+///
+/// https://github.com/binance/binance-spot-api-docs/blob/master/user-data-stream.md#order-update
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderTradeEvent {
@@ -471,22 +476,19 @@ pub struct OrderTradeEvent {
     pub order_id: u64,
 
     #[serde(rename = "l")]
-    pub qty_last_filled_trade: String,
+    pub last_filled_qty: String,
 
     #[serde(rename = "z")]
-    pub accumulated_filled_qty: String,
-
-    #[serde(rename = "Z")]
-    pub accumulated_quote_asset_qty: String,
+    pub cumulative_exec_qty: String,
 
     #[serde(rename = "L")]
-    pub price_last_filled_trade: String,
+    pub last_exec_price: String,
 
     #[serde(rename = "n")]
-    pub commission: String,
+    pub commission_amount: String,
 
-    #[serde(skip, rename = "N")]
-    pub asset_commisioned: Option<String>,
+    #[serde(rename = "N")]
+    pub commission_asset: Option<String>,
 
     #[serde(rename = "T")]
     pub trade_order_time: u64,
@@ -505,6 +507,15 @@ pub struct OrderTradeEvent {
 
     #[serde(skip, rename = "M")]
     pub m_ignore: bool,
+
+    #[serde(rename = "Z")]
+    pub cumulative_exec_asset: String,
+
+    #[serde(rename = "Y")]
+    pub last_exec_qty: String,  // last quote asset transacted quantity (i.e. lastPrice * lastQty)
+
+    #[serde(rename = "Q")]
+    pub quote_order_qty: String,
 }
 
 /// The Aggregate Trade Streams push trade information that is aggregated for a single taker order.
