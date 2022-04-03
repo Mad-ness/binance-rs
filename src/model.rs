@@ -482,7 +482,7 @@ pub struct OrderTradeEvent {
     pub cumulative_exec_qty: String,
 
     #[serde(rename = "L")]
-    pub exec_asset: String,
+    pub exec_price: String,
 
     #[serde(rename = "n")]
     pub commission_amount: String,
@@ -509,10 +509,10 @@ pub struct OrderTradeEvent {
     pub m_ignore: bool,
 
     #[serde(rename = "Z")]
-    pub cumulative_exec_asset: String,
+    pub cumulative_quote_qty: String,
 
     #[serde(rename = "Y")]
-    pub exec_asset: String,  // last quote asset transacted quantity (i.e. lastPrice * lastQty)
+    pub exec_quote_qty: String,  // last quote asset transacted quantity (i.e. lastPrice * lastQty)
 
     #[serde(rename = "Q")]
     pub quote_order_qty: String,
