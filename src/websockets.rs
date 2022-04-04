@@ -27,7 +27,7 @@ impl WebsocketAPI {
                 "wss://stream.binance.com:9443/stream?streams={}",
                 subscription
             ),
-            WebsocketAPI::Custom(url) => format!("{}{}", url, subscription),
+            WebsocketAPI::Custom(url) => format!("{}/{}", url, subscription),
             WebsocketAPI::FakeMultiStream => format!("ws://localhost:9033/stream?streams={}", subscription),
         }
     }
