@@ -43,6 +43,7 @@ pub struct Symbol {
     pub iceberg_allowed: bool,
     pub is_spot_trading_allowed: bool,
     pub is_margin_trading_allowed: bool,
+    pub allow_trailing_stop: bool,
     pub filters: Vec<Filters>,
 }
 
@@ -99,6 +100,14 @@ pub enum Filters {
         min_qty: String,
         max_qty: String,
         step_size: String,
+    },
+    #[serde(rename = "TRAILING_DELTA")]
+    #[serde(rename_all = "camelCase")]
+    TrailingDelta {
+        min_trailing_above_delta: u32,
+        max_trailing_above_delta: u32,
+        min_trailing_below_delta: u32,
+        max_trailing_below_delta: u32,
     },
 }
 
