@@ -311,10 +311,12 @@ pub struct TradeHistory {
     pub symbol: String,
     pub id: u64,
     pub order_id: u64,
+    pub order_list_id: i64,
     #[serde(with = "string_or_float")]
     pub price: f64,
     #[serde(with = "string_or_float")]
     pub qty: f64,
+    pub quote_qty: f64,
     pub commission: String,
     pub commission_asset: String,
     pub time: u64,
