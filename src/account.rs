@@ -7,6 +7,23 @@ use crate::api::API;
 use crate::api::Spot;
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum NewOrderResponseType {
+    Ack,
+    r#Result,
+    Full,
+}
+
+impl From<NewOrderResponseType> for String {
+    fn from(item: NewOrderResponseType) -> Self {
+        match item {
+            NewOrderResponseType::Ack => String::from("ACK"),
+            NewOrderResponseType::r#Result => String::from("RESULT"),
+            NewOrderResponseType::Full => String::from("FULL"),
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Account {
     pub client: Client,
@@ -22,6 +39,7 @@ struct OrderRequest {
     pub order_type: OrderType,
     pub time_in_force: TimeInForce,
     pub new_client_order_id: Option<String>,
+    pub new_order_resp_type: Option<NewOrderResponseType>,
 }
 
 struct OrderQuoteQuantityRequest {
@@ -32,6 +50,7 @@ struct OrderQuoteQuantityRequest {
     pub order_type: OrderType,
     pub time_in_force: TimeInForce,
     pub new_client_order_id: Option<String>,
+    pub new_order_resp_type: Option<NewOrderResponseType>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -291,6 +310,7 @@ impl Account {
             order_type: OrderType::Limit,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_order(buy);
         let request = build_signed_request(order, self.recv_window)?;
@@ -314,6 +334,7 @@ impl Account {
             order_type: OrderType::Limit,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_order(buy);
         let request = build_signed_request(order, self.recv_window)?;
@@ -337,6 +358,7 @@ impl Account {
             order_type: OrderType::Limit,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -360,6 +382,7 @@ impl Account {
             order_type: OrderType::Limit,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -383,6 +406,7 @@ impl Account {
             order_type: OrderType::Market,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_order(buy);
         let request = build_signed_request(order, self.recv_window)?;
@@ -406,6 +430,7 @@ impl Account {
             order_type: OrderType::Market,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_order(buy);
         let request = build_signed_request(order, self.recv_window)?;
@@ -430,6 +455,7 @@ impl Account {
             order_type: OrderType::Market,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_quote_quantity_order(buy);
         let request = build_signed_request(order, self.recv_window)?;
@@ -454,6 +480,7 @@ impl Account {
             order_type: OrderType::Market,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_quote_quantity_order(buy);
         let request = build_signed_request(order, self.recv_window)?;
@@ -477,6 +504,7 @@ impl Account {
             order_type: OrderType::Market,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -500,6 +528,7 @@ impl Account {
             order_type: OrderType::Market,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -524,6 +553,7 @@ impl Account {
             order_type: OrderType::Market,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_quote_quantity_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -548,6 +578,7 @@ impl Account {
             order_type: OrderType::Market,
             time_in_force: TimeInForce::GTC,
             new_client_order_id: None,
+            new_order_resp_type: None,
         };
         let order = self.build_quote_quantity_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -571,7 +602,7 @@ impl Account {
     /// }
     /// ```
     pub fn stop_limit_buy_order<S, F>(
-        &self, symbol: S, qty: F, price: F, stop_price: F, time_in_force: TimeInForce,
+        &self, symbol: S, qty: F, price: F, stop_price: F, time_in_force: TimeInForce, resp_type: Option<NewOrderResponseType>
     ) -> Result<Transaction>
     where
         S: Into<String>,
@@ -586,6 +617,7 @@ impl Account {
             order_type: OrderType::StopLossLimit,
             time_in_force,
             new_client_order_id: None,
+            new_order_resp_type: resp_type,
         };
         let order = self.build_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -609,7 +641,7 @@ impl Account {
     /// }
     /// ```
     pub fn test_stop_limit_buy_order<S, F>(
-        &self, symbol: S, qty: F, price: F, stop_price: F, time_in_force: TimeInForce,
+        &self, symbol: S, qty: F, price: F, stop_price: F, time_in_force: TimeInForce, resp_type: Option<NewOrderResponseType>
     ) -> Result<()>
     where
         S: Into<String>,
@@ -624,6 +656,7 @@ impl Account {
             order_type: OrderType::StopLossLimit,
             time_in_force,
             new_client_order_id: None,
+            new_order_resp_type: resp_type,
         };
         let order = self.build_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -647,7 +680,7 @@ impl Account {
     /// }
     /// ```
     pub fn stop_limit_sell_order<S, F>(
-        &self, symbol: S, qty: F, price: F, stop_price: F, time_in_force: TimeInForce,
+        &self, symbol: S, qty: F, price: F, stop_price: F, time_in_force: TimeInForce, resp_type: Option<NewOrderResponseType>
     ) -> Result<Transaction>
     where
         S: Into<String>,
@@ -662,6 +695,7 @@ impl Account {
             order_type: OrderType::StopLossLimit,
             time_in_force,
             new_client_order_id: None,
+            new_order_resp_type: resp_type,
         };
         let order = self.build_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -685,7 +719,7 @@ impl Account {
     /// }
     /// ```
     pub fn test_stop_limit_sell_order<S, F>(
-        &self, symbol: S, qty: F, price: F, stop_price: F, time_in_force: TimeInForce,
+        &self, symbol: S, qty: F, price: F, stop_price: F, time_in_force: TimeInForce, resp_type: Option<NewOrderResponseType>
     ) -> Result<()>
     where
         S: Into<String>,
@@ -700,6 +734,7 @@ impl Account {
             order_type: OrderType::StopLossLimit,
             time_in_force,
             new_client_order_id: None,
+            new_order_resp_type: resp_type,
         };
         let order = self.build_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -712,7 +747,7 @@ impl Account {
     #[allow(clippy::too_many_arguments)]
     pub fn custom_order<S, F>(
         &self, symbol: S, qty: F, price: F, stop_price: Option<String>, order_side: OrderSide,
-        order_type: OrderType, time_in_force: TimeInForce, new_client_order_id: Option<String>,
+        order_type: OrderType, time_in_force: TimeInForce, new_client_order_id: Option<String>, resp_type: Option<NewOrderResponseType>,
     ) -> Result<Transaction>
     where
         S: Into<String>,
@@ -727,6 +762,7 @@ impl Account {
             order_type,
             time_in_force,
             new_client_order_id,
+            new_order_resp_type: resp_type,
         };
         let order = self.build_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -739,7 +775,7 @@ impl Account {
     #[allow(clippy::too_many_arguments)]
     pub fn test_custom_order<S, F>(
         &self, symbol: S, qty: F, price: F, stop_price: Option<String>, order_side: OrderSide,
-        order_type: OrderType, time_in_force: TimeInForce, new_client_order_id: Option<String>,
+        order_type: OrderType, time_in_force: TimeInForce, new_client_order_id: Option<String>, resp_type: Option<NewOrderResponseType>,
     ) -> Result<()>
     where
         S: Into<String>,
@@ -754,6 +790,7 @@ impl Account {
             order_type: order_type,
             time_in_force: time_in_force,
             new_client_order_id: new_client_order_id,
+            new_order_resp_type: resp_type,
         };
         let order = self.build_order(sell);
         let request = build_signed_request(order, self.recv_window)?;
@@ -826,6 +863,7 @@ impl Account {
         order_parameters.insert("side".into(), order.order_side.into());
         order_parameters.insert("type".into(), order.order_type.into());
         order_parameters.insert("quantity".into(), order.qty.to_string());
+        order_parameters.insert("quantity".into(), order.qty.to_string());
 
         if let Some(stop_price) = order.stop_price {
             order_parameters.insert("stopPrice".into(), stop_price.to_string());
@@ -838,6 +876,10 @@ impl Account {
 
         if let Some(client_order_id) = order.new_client_order_id {
             order_parameters.insert("newClientOrderId".into(), client_order_id);
+        }
+
+        if let Some(resp_type) = order.new_order_resp_type {
+            order_parameters.insert("newOrderRespType".into(), resp_type.into());
         }
 
         order_parameters
@@ -860,6 +902,10 @@ impl Account {
 
         if let Some(client_order_id) = order.new_client_order_id {
             order_parameters.insert("newClientOrderId".into(), client_order_id);
+        }
+
+        if let Some(resp_type) = order.new_order_resp_type {
+            order_parameters.insert("newOrderRespType".into(), resp_type.into());
         }
 
         order_parameters
