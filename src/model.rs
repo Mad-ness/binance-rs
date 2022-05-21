@@ -372,7 +372,7 @@ pub struct AggTrade {
     #[serde(rename = "q", with = "string_or_float")]
     pub qty: f64,
 }
-
+/*** It seems defined for futures
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct AccountUpdateEvent {
@@ -397,10 +397,11 @@ pub struct AccountUpdateEvent {
     #[serde(rename = "B")]
     pub balance: Vec<EventBalance>,
 }
+***/
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct BalanceUpdateEvent {
+pub struct AccountUpdateEvent {
     #[serde(rename = "B")]
     pub balance: Vec<EventBalance>,
 
@@ -424,6 +425,27 @@ pub struct EventBalance {
     #[serde(rename = "l")]
     pub locked: String,
 }
+
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct BalanceUpdateEvent {
+    #[serde(rename = "e")]
+    pub event_type: String,
+
+    #[serde(rename = "E")]
+    pub event_time: u64,
+
+    #[serde(rename = "a")]
+    pub asset: String,
+
+    #[serde(rename = "d")]
+    pub balance_delta: String,
+
+    #[serde(rename = "T")]
+    pub clear_time: u64,
+}
+
 
 /// Order update is pushed every time an action on a user order made.
 ///
