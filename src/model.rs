@@ -185,7 +185,7 @@ pub struct Transaction {
     pub executed_qty: f64,
     #[serde(with = "string_or_float")]
     pub cummulative_quote_qty: f64,
-    #[serde(with = "string_or_float", default = "default_stop_price")]
+    #[serde(with = "string_or_float")]
     pub stop_price: f64,
     pub status: String,
     pub time_in_force: String,
